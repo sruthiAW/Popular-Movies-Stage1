@@ -1,8 +1,12 @@
-package com.example.ssurendran.popularmovies;
+package com.example.ssurendran.popularmovies.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import com.example.ssurendran.popularmovies.models.ReviewDetails;
+import com.example.ssurendran.popularmovies.utils.Constants;
+import com.example.ssurendran.popularmovies.models.MovieDetails;
 
 import org.json.JSONException;
 
@@ -45,7 +49,7 @@ public class RequestsBuilder {
         return null;
     }
 
-    public List<List<String >> makeTopRatingMoviesRequest() throws IOException, JSONException {
+    public List<List<String>> makeTopRatingMoviesRequest() throws IOException, JSONException {
         String base_url = "https://api.themoviedb.org/3/movie/top_rated?api_key=" + Constants.MOVIE_DB_API_KEY + "&language=en-U";
         try {
             return makeNetworkRequestAndParseResponse(new URL(base_url));
@@ -66,12 +70,23 @@ public class RequestsBuilder {
         return new MovieDetails();
     }
 
-    private List<List<String>> makeNetworkRequestAndParseResponse(final URL url) throws IOException, JSONException {
-        String response = makeNetworkCall(url);
-        return new ResponseParser().parseResponse(response);
+    public List<ReviewDetails> makeReviewRequest(String movieId) throws JSONException, IOException {
+        String base_url = "https://api.themoviedb.org/3/movie/" + movieId + "/reviews?api_key=" + Constants.MOVIE_DB_API_KEY + "&language=en-US&page=1";
+        try {
+            String response = makeNetworkCall(new URL(base_url));
+            return new ResponseParser().parseReviewResponse(response);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private String  makeNetworkCall(URL url) throws IOException {
+    private List<List<String>> makeNetworkRequestAndParseResponse(final URL url) throws IOException, JSONException {
+        String response = makeNetworkCall(url);
+        return new ResponseParser().parseMovieListResponse(response);
+    }
+
+    private String makeNetworkCall(URL url) throws IOException {
         InputStream stream = null;
         HttpsURLConnection connection = null;
         String result = null;

@@ -1,4 +1,4 @@
-package com.example.ssurendran.popularmovies;
+package com.example.ssurendran.popularmovies.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,13 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.example.ssurendran.popularmovies.DetailsActivity;
+import com.example.ssurendran.popularmovies.R;
+import com.example.ssurendran.popularmovies.utils.Constants;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

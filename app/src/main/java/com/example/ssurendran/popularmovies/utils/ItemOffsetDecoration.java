@@ -1,4 +1,4 @@
-package com.example.ssurendran.popularmovies;
+package com.example.ssurendran.popularmovies.utils;
 
 import android.content.Context;
 import android.graphics.Rect;

@@ -1,4 +1,4 @@
-package com.example.ssurendran.popularmovies;
+package com.example.ssurendran.popularmovies.utils;
 
 /**
  * Created by ssurendran on 2/17/18.

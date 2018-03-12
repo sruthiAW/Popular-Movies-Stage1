@@ -14,6 +14,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ssurendran.popularmovies.adapters.MovieListAdapter;
+import com.example.ssurendran.popularmovies.network.RequestsBuilder;
+import com.example.ssurendran.popularmovies.utils.ItemOffsetDecoration;
+
 import org.json.JSONException;
 
 import java.io.IOException;

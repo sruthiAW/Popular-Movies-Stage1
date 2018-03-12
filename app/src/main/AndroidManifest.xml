@@ -31,6 +31,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.ssurendran.popularmovies.MovieListActivity" />
         </activity>
+        <activity
+            android:name=".ReviewsActivity"
+            android:label="@string/title_activity_reviews"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
