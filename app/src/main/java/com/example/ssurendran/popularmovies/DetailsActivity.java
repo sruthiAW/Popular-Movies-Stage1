@@ -1,9 +1,13 @@
 package com.example.ssurendran.popularmovies;
 
+import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -26,8 +30,11 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView userRating;
     private TextView plot;
     private TextView noContentTv;
+    private TextView reviewLink;
+    private ImageView favoriteIcon;
     private RelativeLayout mainLayout;
     private RequestsBuilder requestsBuilder;
+    private String movieId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,8 @@ public class DetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         requestsBuilder = new RequestsBuilder(this);
+
+        movieId = getIntent().getStringExtra(Constants.MOVIE_ID_EXTRA);
 
         initializeUI();
         fetchMovieDetails();
@@ -52,6 +61,27 @@ public class DetailsActivity extends AppCompatActivity {
         plot = (TextView) findViewById(R.id.plot);
         noContentTv = (TextView) findViewById(R.id.no_content);
         mainLayout = (RelativeLayout) findViewById(R.id.main_details_rl);
+        reviewLink = (TextView) findViewById(R.id.reviews_link);
+        favoriteIcon = (ImageView) findViewById(R.id.favorite_icon);
+
+        reviewLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent reviewIntent = new Intent(DetailsActivity.this, ReviewsActivity.class);
+                reviewIntent.putExtra(Constants.MOVIE_ID_EXTRA, movieId);
+                startActivity(reviewIntent);
+            }
+        });
+
+        favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
+        favoriteIcon.setColorFilter(ContextCompat.getColor(this, R.color.yellow), PorterDuff.Mode.SRC_IN);
+
+        favoriteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     private void setDetails(MovieDetails movieDetails) {
@@ -63,6 +93,16 @@ public class DetailsActivity extends AppCompatActivity {
 
         String poster_path = movieDetails.getPosterPath();
         Picasso.with(this).load(Constants.IMAGE_BASE_URL + Constants.IMAGE_FILE_SIZE + poster_path).into(moviePoster);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+        return true;
     }
 
     private void fetchMovieDetails() {
@@ -79,12 +119,12 @@ public class DetailsActivity extends AppCompatActivity {
 
             @Override
             protected MovieDetails doInBackground(Void... voids) {
-                if (!requestsBuilder.isNetworkAvailable()){
+                if (!requestsBuilder.isNetworkAvailable()) {
                     noContentTv.setText(R.string.no_internet_msg);
                     return null;
                 }
                 try {
-                    return requestsBuilder.makeMovieDetailsRequest(getIntent().getStringExtra(Constants.MOVIE_ID_EXTRA));
+                    return requestsBuilder.makeMovieDetailsRequest(movieId);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -95,11 +135,10 @@ public class DetailsActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(MovieDetails movieDetails) {
-                if (movieDetails == null && requestsBuilder.isNetworkAvailable()){
+                if (movieDetails == null && requestsBuilder.isNetworkAvailable()) {
                     noContentTv.setText(R.string.error_try_again_msg);
                     return;
-                }
-                 else if (movieDetails == null){
+                } else if (movieDetails == null) {
                     return;
                 }
                 noContentTv.setVisibility(View.GONE);
@@ -123,12 +162,12 @@ public class DetailsActivity extends AppCompatActivity {
 
             @Override
             protected MovieDetails doInBackground(Void... voids) {
-                if (!requestsBuilder.isNetworkAvailable()){
+                if (!requestsBuilder.isNetworkAvailable()) {
                     noContentTv.setText(R.string.no_internet_msg);
                     return null;
                 }
                 try {
-                    return requestsBuilder.makeMovieDetailsRequest(getIntent().getStringExtra(Constants.MOVIE_ID_EXTRA));
+                    return requestsBuilder.makeMovieDetailsRequest(movieId);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -139,11 +178,10 @@ public class DetailsActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(MovieDetails movieDetails) {
-                if (movieDetails == null && requestsBuilder.isNetworkAvailable()){
+                if (movieDetails == null && requestsBuilder.isNetworkAvailable()) {
                     noContentTv.setText(R.string.error_try_again_msg);
                     return;
-                }
-                else if (movieDetails == null){
+                } else if (movieDetails == null) {
                     return;
                 }
                 noContentTv.setVisibility(View.GONE);

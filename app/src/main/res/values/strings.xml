@@ -2,7 +2,7 @@
     <string name="app_name">Popular Movies</string>
     <string name="action_sort">Sort</string>
     <string name="please_wait_while_we_load">Please wait while we load...</string>
-    <string name="title_activity_details">DetailsActivity</string>
+    <string name="title_activity_details">Movie Details</string>
     <string name="user_rating">User Rating :</string>
     <string name="release_date">Release date :</string>
     <string name="top_rated_sort">Top Rated</string>
@@ -13,6 +13,7 @@
     <string name="error_try_again_msg">Some error occured. Please try again</string>
     <string name="no_network_connection_sort_dialog">No network connection</string>
     <string name="poster_size">w500</string>
-    <string name="title_activity_reviews">ReviewsActivity</string>
+    <string name="title_activity_reviews">Reviews</string>
     <string name="no_reviews">No reviews yet</string>
+    <string name="reviews_link"><![CDATA[Reviews>]]></string>
 </resources>

@@ -7,6 +7,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -34,6 +35,8 @@ public class ReviewsActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         requestsBuilder = new RequestsBuilder(this);
 
         reviewRecyclerView = (RecyclerView) findViewById(R.id.rv_reviews_list);
@@ -47,6 +50,16 @@ public class ReviewsActivity extends AppCompatActivity {
         reviewRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         reviewRecyclerView.setHasFixedSize(true);
         reviewRecyclerView.setAdapter(new ReviewListAdapter(this, reviews));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+        return true;
     }
 
     private void fetchReviews(){

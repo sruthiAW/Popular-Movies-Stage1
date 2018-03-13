@@ -58,11 +58,11 @@ public class ResponseParser {
 
     public List<ReviewDetails> parseReviewResponse(String responseString) throws JSONException {
         List<ReviewDetails> reviews = new ArrayList<>();
-        ReviewDetails reviewDetails = new ReviewDetails();
         JSONObject mainJSONObject = new JSONObject(responseString);
         JSONArray jsonarray = mainJSONObject.getJSONArray("results");
         for (int i = 0; i < jsonarray.length(); i++) {
             JSONObject jsonobject = jsonarray.getJSONObject(i);
+            ReviewDetails reviewDetails = new ReviewDetails();
             reviewDetails.setAuthor(jsonobject.getString("author"));
             reviewDetails.setReview(jsonobject.getString("content"));
             reviews.add(i, reviewDetails);
