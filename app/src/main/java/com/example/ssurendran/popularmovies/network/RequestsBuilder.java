@@ -81,6 +81,17 @@ public class RequestsBuilder {
         return null;
     }
 
+    public byte[] downloadPosterImage(String posterPath) throws IOException {
+        String base_url = Constants.IMAGE_BASE_URL + Constants.IMAGE_FILE_SIZE + posterPath;
+        try{
+            String response = makeNetworkCall(new URL(base_url));
+            return response.getBytes();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private List<List<String>> makeNetworkRequestAndParseResponse(final URL url) throws IOException, JSONException {
         String response = makeNetworkCall(url);
         return new ResponseParser().parseMovieListResponse(response);

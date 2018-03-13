@@ -1,9 +1,17 @@
 package com.example.ssurendran.popularmovies;
 
+import android.app.DownloadManager;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,14 +23,21 @@ import android.widget.TextView;
 
 import com.example.ssurendran.popularmovies.models.MovieDetails;
 import com.example.ssurendran.popularmovies.network.RequestsBuilder;
+import com.example.ssurendran.popularmovies.storage.FavoritesDBHelper;
+import com.example.ssurendran.popularmovies.storage.MoviesContract;
+import com.example.ssurendran.popularmovies.storage.MoviesDBHelper;
 import com.example.ssurendran.popularmovies.utils.Constants;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 
 public class DetailsActivity extends AppCompatActivity {
+
+    private static final String FAVORITE = "favorite";
+    private static final String NORMAL = "normal";
 
     private ImageView moviePoster;
     private TextView movieName;
@@ -35,6 +50,7 @@ public class DetailsActivity extends AppCompatActivity {
     private RelativeLayout mainLayout;
     private RequestsBuilder requestsBuilder;
     private String movieId;
+    private MovieDetails mMovieDetails;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,26 +89,33 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
 
-        favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
-        favoriteIcon.setColorFilter(ContextCompat.getColor(this, R.color.yellow), PorterDuff.Mode.SRC_IN);
+        setUpFavoriteIcon();
 
         favoriteIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                toggleFavoriteStatus();
             }
         });
     }
 
     private void setDetails(MovieDetails movieDetails) {
-
+        mMovieDetails = movieDetails;
         movieName.setText(movieDetails.getMovieName());
         userRating.append(movieDetails.getUserRating());
         releaseDate.append(movieDetails.getReleaseDate());
         plot.setText(movieDetails.getMoviePlot());
 
         String poster_path = movieDetails.getPosterPath();
-        Picasso.with(this).load(Constants.IMAGE_BASE_URL + Constants.IMAGE_FILE_SIZE + poster_path).into(moviePoster);
+        if (poster_path != null) {
+            Picasso.with(this).load(Constants.IMAGE_BASE_URL + Constants.IMAGE_FILE_SIZE + poster_path).into(moviePoster);
+            return;
+        }
+
+        Bitmap posterBitmap = movieDetails.getMoviePoster();
+        if (posterBitmap != null){
+            moviePoster.setImageBitmap(posterBitmap);
+        }
     }
 
     @Override
@@ -190,4 +213,68 @@ public class DetailsActivity extends AppCompatActivity {
             }
         }.execute(null, null, null);
     }
+
+    private void setUpFavoriteIcon(){
+        new AsyncTask<Void, Void, MovieDetails>(){
+
+            @Override
+            protected MovieDetails doInBackground(Void... voids) {
+                return new FavoritesDBHelper().readData(DetailsActivity.this, movieId);
+            }
+
+            @Override
+            protected void onPostExecute(MovieDetails movieDetails) {
+                if (movieDetails != null){
+                    favoriteIcon.setImageResource(R.drawable.ic_star_black_24dp);
+                    favoriteIcon.setTag(FAVORITE);
+                } else {
+                    favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
+                    favoriteIcon.setTag(NORMAL);
+                }
+                favoriteIcon.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.yellow), PorterDuff.Mode.SRC_IN);
+            }
+        }.execute(null, null, null);
+    }
+
+    private void toggleFavoriteStatus(){
+        new AsyncTask<Void, Void, Void>(){
+
+            @Override
+            protected void onPreExecute() {
+                if (favoriteIcon.getTag().equals(FAVORITE)) {
+                    favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
+                } else {
+                    favoriteIcon.setImageResource(R.drawable.ic_star_black_24dp);
+                }
+
+                favoriteIcon.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.yellow), PorterDuff.Mode.SRC_IN);
+                favoriteIcon.setEnabled(false);
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                if (favoriteIcon.getTag().equals(FAVORITE)){
+                    int deletedCount = DetailsActivity.this.getContentResolver().delete(
+                            ContentUris.withAppendedId(MoviesContract.FavoriteMovieEntry.CONTENT_URI, Long.valueOf(movieId)),
+                            null,
+                            null);
+
+                } else{
+                    new FavoritesDBHelper().persist(DetailsActivity.this, movieId, mMovieDetails);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                if (favoriteIcon.getTag().equals(FAVORITE)) {
+                    favoriteIcon.setTag(NORMAL);
+                } else {
+                    favoriteIcon.setTag(FAVORITE);
+                }
+                favoriteIcon.setEnabled(true);
+            }
+        }.execute(null, null, null);
+    }
+
 }

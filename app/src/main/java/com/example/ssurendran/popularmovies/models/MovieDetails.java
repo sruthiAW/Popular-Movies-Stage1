@@ -1,5 +1,7 @@
 package com.example.ssurendran.popularmovies.models;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by ssurendran on 2/17/18.
  */
@@ -11,6 +13,7 @@ public class MovieDetails {
     private String releaseDate;
     private String posterPath;
     private String moviePlot;
+    private Bitmap moviePoster;
 
     public MovieDetails() {
     }
@@ -53,5 +56,13 @@ public class MovieDetails {
 
     public void setMoviePlot(String moviePlot) {
         this.moviePlot = moviePlot;
+    }
+
+    public Bitmap getMoviePoster() {
+        return moviePoster;
+    }
+
+    public void setMoviePoster(Bitmap moviePoster) {
+        this.moviePoster = moviePoster;
     }
 }
