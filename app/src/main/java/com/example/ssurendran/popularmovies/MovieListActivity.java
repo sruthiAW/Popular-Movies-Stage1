@@ -23,6 +23,7 @@ import com.example.ssurendran.popularmovies.utils.ItemOffsetDecoration;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieListActivity extends AppCompatActivity {
@@ -45,17 +46,30 @@ public class MovieListActivity extends AppCompatActivity {
 
         noContentTv = (TextView) findViewById(R.id.no_content);
         movieRecyclerView = (RecyclerView) findViewById(R.id.movie_recycler_view);
+        setUpRecyclerView();
 
         fetchMovieList();
 
     }
 
-    private void setUpRecyclerView(List<MovieDetails> movieList) {
-        movieListAdapter = new MovieListAdapter(this, movieList);
+    private void setUpRecyclerView() {
+        movieListAdapter = new MovieListAdapter(this, new ArrayList<MovieDetails>());
         movieRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         movieRecyclerView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.grid_spacing));
         movieRecyclerView.setHasFixedSize(true);
         movieRecyclerView.setAdapter(movieListAdapter);
+    }
+
+    private void updateRecyclerView(List<MovieDetails> movieList){
+        movieListAdapter.refreshData(movieList);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(moviePref.getSortOrder().equalsIgnoreCase(getString(R.string.favorites_sort))){
+            fetchMovieList();
+        }
     }
 
     private void fetchMovieList() {
@@ -101,12 +115,16 @@ public class MovieListActivity extends AppCompatActivity {
                     noContentTv.setText(R.string.error_try_again_msg);
                     return;
                 }
+                else if (movieList != null && movieList.size() == 0){
+                    noContentTv.setText(R.string.no_movies_to_show_here);
+                    return;
+                }
                 else if (movieList == null){
                     return;
                 }
                 movieRecyclerView.setVisibility(View.VISIBLE);
                 noContentTv.setVisibility(View.GONE);
-                setUpRecyclerView(movieList);
+                updateRecyclerView(movieList);
             }
         }.execute(null, null, null);
     }
@@ -154,13 +172,16 @@ public class MovieListActivity extends AppCompatActivity {
                     noContentTv.setText(R.string.error_try_again_msg);
                     return;
                 }
+                else if (movieList != null && movieList.size() == 0){
+                    noContentTv.setText(R.string.no_movies_to_show_here);
+                    return;
+                }
                 else if (movieList == null){
                     return;
                 }
                 movieRecyclerView.setVisibility(View.VISIBLE);
                 noContentTv.setVisibility(View.GONE);
-                movieListAdapter.refreshData(movieList);
-                movieRecyclerView.getAdapter().notifyDataSetChanged();
+                updateRecyclerView(movieList);
             }
         }.execute(null, null, null);
     }

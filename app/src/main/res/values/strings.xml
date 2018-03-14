@@ -12,6 +12,7 @@
     <string name="sorting_load">Sorting...</string>
     <string name="no_internet_msg">No internet connection. Please try again later</string>
     <string name="error_try_again_msg">Some error occured. Please try again</string>
+    <string name="no_movies_to_show_here">No movies to show here</string>
     <string name="no_network_connection_sort_dialog">No network connection</string>
     <string name="poster_size">w500</string>
     <string name="title_activity_reviews">Reviews</string>

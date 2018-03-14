@@ -26,9 +26,6 @@ import static com.example.ssurendran.popularmovies.utils.Constants.MOVIE_OBJECT_
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.ViewHolder> {
     private List<MovieDetails> movielist = new ArrayList<>();
-    /*private List<String > movieNames = new ArrayList<>();
-    private List<String > movieIds = new ArrayList<>();
-    private List<String > moviePosters = new ArrayList<>();*/
     private Context context;
     private MoviePref moviePref;
 
@@ -36,9 +33,6 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         this.context = context;
         this.movielist = movieList;
         moviePref = new MoviePref(context);
-        /*movieIds = bigList.get(0);
-        movieNames = bigList.get(1);
-        moviePosters = bigList.get(2);*/
     }
 
     @Override
@@ -78,9 +72,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
 
     public void refreshData(List<MovieDetails> movielist) {
         this.movielist = movielist;
-        /*movieIds = bigList.get(0);
-        movieNames = bigList.get(1);
-        moviePosters = bigList.get(2);*/
+        this.notifyDataSetChanged();
     }
 
 
