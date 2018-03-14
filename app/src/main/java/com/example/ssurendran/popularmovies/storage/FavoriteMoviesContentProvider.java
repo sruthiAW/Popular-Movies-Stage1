@@ -21,7 +21,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
     private static final int FAVORITE_MOVIES = 100;
     private static final int FAVORITE_MOVIES_WITH_ID = 101;
 
-    private MoviesDBHelper mMoviesDbHelper;
+    private MoviesDBSQLiteOpenHelper mMoviesDBSQLiteOpenHelper;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
     public static UriMatcher buildUriMatcher() {
@@ -36,7 +36,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        mMoviesDbHelper = new MoviesDBHelper(getContext());
+        mMoviesDBSQLiteOpenHelper = new MoviesDBSQLiteOpenHelper(getContext());
         return true;
     }
 
@@ -44,7 +44,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 
-        SQLiteDatabase db = mMoviesDbHelper.getReadableDatabase();
+        SQLiteDatabase db = mMoviesDBSQLiteOpenHelper.getReadableDatabase();
 
         int match = sUriMatcher.match(uri);
         Cursor retCursor;
@@ -90,7 +90,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
 
-        final SQLiteDatabase db = mMoviesDbHelper.getWritableDatabase();
+        final SQLiteDatabase db = mMoviesDBSQLiteOpenHelper.getWritableDatabase();
 
         int match = sUriMatcher.match(uri);
         Uri returnUri;
@@ -116,7 +116,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        final SQLiteDatabase db = mMoviesDbHelper.getWritableDatabase();
+        final SQLiteDatabase db = mMoviesDBSQLiteOpenHelper.getWritableDatabase();
 
         int match = sUriMatcher.match(uri);
         int tasksDeleted;
@@ -141,7 +141,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        final SQLiteDatabase db = mMoviesDbHelper.getWritableDatabase();
+        final SQLiteDatabase db = mMoviesDBSQLiteOpenHelper.getWritableDatabase();
 
         int match = sUriMatcher.match(uri);
         int tasksUpdated;

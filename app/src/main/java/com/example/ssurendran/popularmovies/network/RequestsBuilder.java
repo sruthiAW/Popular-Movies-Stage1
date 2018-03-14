@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.example.ssurendran.popularmovies.models.ReviewDetails;
+import com.example.ssurendran.popularmovies.models.TrailerDetails;
 import com.example.ssurendran.popularmovies.utils.Constants;
 import com.example.ssurendran.popularmovies.models.MovieDetails;
 
@@ -75,6 +76,17 @@ public class RequestsBuilder {
         try {
             String response = makeNetworkCall(new URL(base_url));
             return new ResponseParser().parseReviewResponse(response);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<TrailerDetails> makeTrailerRequest(String movieId) throws JSONException, IOException {
+        String base_url = "https://api.themoviedb.org/3/movie/" + movieId + "/videos?api_key=" + Constants.MOVIE_DB_API_KEY + "&language=en-US";
+        try {
+            String response = makeNetworkCall(new URL(base_url));
+            return new ResponseParser().parseTrailerResponse(response);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

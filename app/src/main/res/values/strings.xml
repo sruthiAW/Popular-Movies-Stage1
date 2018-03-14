@@ -16,4 +16,9 @@
     <string name="title_activity_reviews">Reviews</string>
     <string name="no_reviews">No reviews yet</string>
     <string name="reviews_link"><![CDATA[Reviews>]]></string>
+    <string name="no_trailers_found">Couldn\'t find trailers</string>
+    <string name="trailers_title">Trailers:</string>
+    <string name="trailer_list_item">Trailer\u0020</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="added_to_favorites">Added to favorites</string>
 </resources>

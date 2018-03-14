@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -49,6 +49,7 @@
                 android:layout_marginTop="10dp" />
 
             <LinearLayout
+                android:id="@+id/details_ll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/movie_name"
@@ -100,7 +101,37 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/trailer_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/details_ll"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/trailers_title" />
+
+            <FrameLayout
+                android:id="@+id/fl_trailer_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/trailer_tv"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/no_trailer_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/trailer_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </FrameLayout>
+
         </RelativeLayout>
 
     </FrameLayout>
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>

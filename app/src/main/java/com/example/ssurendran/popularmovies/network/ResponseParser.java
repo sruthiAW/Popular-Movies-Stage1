@@ -2,13 +2,19 @@ package com.example.ssurendran.popularmovies.network;
 
 import com.example.ssurendran.popularmovies.models.MovieDetails;
 import com.example.ssurendran.popularmovies.models.ReviewDetails;
+import com.example.ssurendran.popularmovies.models.TrailerDetails;
+import com.example.ssurendran.popularmovies.utils.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.ssurendran.popularmovies.utils.Constants.TRAILER_TYPE;
 
 /**
  * Created by ssurendran on 2/17/18.
@@ -68,5 +74,19 @@ public class ResponseParser {
             reviews.add(i, reviewDetails);
         }
         return reviews;
+    }
+
+    public List<TrailerDetails> parseTrailerResponse(String responseString) throws JSONException {
+        List<TrailerDetails> trailers = new ArrayList<>();
+        JSONObject mainJSONObject = new JSONObject(responseString);
+        JSONArray jsonarray = mainJSONObject.getJSONArray("results");
+        for (int i = 0; i < jsonarray.length(); i++) {
+            JSONObject jsonobject = jsonarray.getJSONObject(i);
+            if (jsonobject.getString("type").equalsIgnoreCase(TRAILER_TYPE)) {
+                String trailerKey = jsonobject.getString("key");
+                trailers.add(new TrailerDetails(Constants.MOVIE_TRAILER_BASE_URL + trailerKey));
+            }
+        }
+        return trailers;
     }
 }
