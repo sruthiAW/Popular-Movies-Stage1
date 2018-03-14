@@ -7,6 +7,7 @@
     <string name="release_date">Release date :</string>
     <string name="top_rated_sort">Top Rated</string>
     <string name="popular_sort">Popular</string>
+    <string name="favorites_sort">Favorites</string>
     <string name="sort_dialog_title">Sort</string>
     <string name="sorting_load">Sorting...</string>
     <string name="no_internet_msg">No internet connection. Please try again later</string>

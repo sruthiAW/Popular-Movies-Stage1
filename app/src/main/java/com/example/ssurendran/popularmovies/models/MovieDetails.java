@@ -2,20 +2,32 @@ package com.example.ssurendran.popularmovies.models;
 
 import android.graphics.Bitmap;
 
+import java.io.Serializable;
+
 /**
  * Created by ssurendran on 2/17/18.
  */
 
-public class MovieDetails {
+public class MovieDetails implements Serializable{
 
+    private String movieId;
     private String movieName;
     private String userRating;
     private String releaseDate;
     private String posterPath;
     private String moviePlot;
     private Bitmap moviePoster;
+    private boolean isFavorite;
 
     public MovieDetails() {
+    }
+
+    public String getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(String movieId) {
+        this.movieId = movieId;
     }
 
     public String getMovieName() {
@@ -64,5 +76,13 @@ public class MovieDetails {
 
     public void setMoviePoster(Bitmap moviePoster) {
         this.moviePoster = moviePoster;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
     }
 }

@@ -15,7 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ssurendran.popularmovies.adapters.MovieListAdapter;
+import com.example.ssurendran.popularmovies.models.MovieDetails;
 import com.example.ssurendran.popularmovies.network.RequestsBuilder;
+import com.example.ssurendran.popularmovies.storage.FavoritesDBHelper;
 import com.example.ssurendran.popularmovies.utils.ItemOffsetDecoration;
 
 import org.json.JSONException;
@@ -48,8 +50,8 @@ public class MovieListActivity extends AppCompatActivity {
 
     }
 
-    private void setUpRecyclerView(List<List<String>> bigList) {
-        movieListAdapter = new MovieListAdapter(this, bigList);
+    private void setUpRecyclerView(List<MovieDetails> movieList) {
+        movieListAdapter = new MovieListAdapter(this, movieList);
         movieRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         movieRecyclerView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.grid_spacing));
         movieRecyclerView.setHasFixedSize(true);
@@ -57,7 +59,7 @@ public class MovieListActivity extends AppCompatActivity {
     }
 
     private void fetchMovieList() {
-        new AsyncTask<Void, Void, List<List<String>>>() {
+        new AsyncTask<Void, Void, List<MovieDetails>>() {
 
             @Override
             protected void onPreExecute() {
@@ -69,18 +71,22 @@ public class MovieListActivity extends AppCompatActivity {
             }
 
             @Override
-            protected List<List<String>> doInBackground(Void... voids) {
-                if (!requestsBuilder.isNetworkAvailable()){
+            protected List<MovieDetails> doInBackground(Void... voids) {
+                String sortOrder = moviePref.getSortOrder();
+                if (!requestsBuilder.isNetworkAvailable() && !sortOrder.equalsIgnoreCase(getString(R.string.favorites_sort))){
                     noContentTv.setText(R.string.no_internet_msg);
                     return null;
                 }
 
                 try {
-                    if (moviePref.getSortOrder().equalsIgnoreCase(getString(R.string.popular_sort))) {
+                    if (sortOrder.equalsIgnoreCase(getString(R.string.popular_sort))) {
                         return requestsBuilder.makePopularMoviesRequest();
-                    } else {
+                    } else if (sortOrder.equalsIgnoreCase(getString(R.string.top_rated_sort))){
                         return requestsBuilder.makeTopRatingMoviesRequest();
+                    } else {
+                        return new FavoritesDBHelper().getAllFavoriteMovies(MovieListActivity.this);
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -90,23 +96,23 @@ public class MovieListActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onPostExecute(List<List<String>> bigList) {
-                if (bigList == null && requestsBuilder.isNetworkAvailable()){
+            protected void onPostExecute(List<MovieDetails> movieList) {
+                if (movieList == null && requestsBuilder.isNetworkAvailable()){
                     noContentTv.setText(R.string.error_try_again_msg);
                     return;
                 }
-                else if (bigList == null){
+                else if (movieList == null){
                     return;
                 }
                 movieRecyclerView.setVisibility(View.VISIBLE);
                 noContentTv.setVisibility(View.GONE);
-                setUpRecyclerView(bigList);
+                setUpRecyclerView(movieList);
             }
         }.execute(null, null, null);
     }
 
     private void sortMovieList() {
-        new AsyncTask<Void, Void, List<List<String>>>() {
+        new AsyncTask<Void, Void, List<MovieDetails>>() {
 
             @Override
             protected void onPreExecute() {
@@ -118,18 +124,22 @@ public class MovieListActivity extends AppCompatActivity {
             }
 
             @Override
-            protected List<List<String>> doInBackground(Void... voids) {
-                if (!requestsBuilder.isNetworkAvailable()){
+            protected List<MovieDetails> doInBackground(Void... voids) {
+                String sortOrder = moviePref.getSortOrder();
+                if (!requestsBuilder.isNetworkAvailable() && !sortOrder.equalsIgnoreCase(getString(R.string.favorites_sort))){
                     noContentTv.setText(R.string.no_internet_msg);
                     return null;
                 }
 
                 try {
-                    if (moviePref.getSortOrder().equalsIgnoreCase(getString(R.string.popular_sort))) {
+                    if (sortOrder.equalsIgnoreCase(getString(R.string.popular_sort))) {
                         return requestsBuilder.makePopularMoviesRequest();
-                    } else {
+                    } else if (sortOrder.equalsIgnoreCase(getString(R.string.top_rated_sort))){
                         return requestsBuilder.makeTopRatingMoviesRequest();
+                    } else{
+                        return new FavoritesDBHelper().getAllFavoriteMovies(MovieListActivity.this);
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -139,17 +149,17 @@ public class MovieListActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onPostExecute(List<List<String>> bigList) {
-                if (bigList == null && requestsBuilder.isNetworkAvailable()){
+            protected void onPostExecute(List<MovieDetails> movieList) {
+                if (movieList == null && requestsBuilder.isNetworkAvailable()){
                     noContentTv.setText(R.string.error_try_again_msg);
                     return;
                 }
-                else if (bigList == null){
+                else if (movieList == null){
                     return;
                 }
                 movieRecyclerView.setVisibility(View.VISIBLE);
                 noContentTv.setVisibility(View.GONE);
-                movieListAdapter.refreshData(bigList);
+                movieListAdapter.refreshData(movieList);
                 movieRecyclerView.getAdapter().notifyDataSetChanged();
             }
         }.execute(null, null, null);
@@ -174,7 +184,7 @@ public class MovieListActivity extends AppCompatActivity {
 
     private void launchSortDialog() {
 
-        final String[] sortList = new String[]{getString(R.string.popular_sort), getString(R.string.top_rated_sort)};
+        final String[] sortList = new String[]{getString(R.string.popular_sort), getString(R.string.top_rated_sort), getString(R.string.favorites_sort)};
 
         AlertDialog.Builder alt_bld = new AlertDialog.Builder(this);
         alt_bld.setTitle(R.string.sort_dialog_title);

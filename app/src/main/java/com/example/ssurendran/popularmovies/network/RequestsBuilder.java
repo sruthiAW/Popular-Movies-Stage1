@@ -12,6 +12,7 @@ import com.example.ssurendran.popularmovies.models.MovieDetails;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,7 +41,7 @@ public class RequestsBuilder {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public List<List<String>> makePopularMoviesRequest() throws IOException, JSONException {
+    public List<MovieDetails> makePopularMoviesRequest() throws IOException, JSONException {
         String base_url = "https://api.themoviedb.org/3/movie/popular?api_key=" + Constants.MOVIE_DB_API_KEY + "&language=en-U";
         try {
             return makeNetworkRequestAndParseResponse(new URL(base_url));
@@ -50,7 +51,7 @@ public class RequestsBuilder {
         return null;
     }
 
-    public List<List<String>> makeTopRatingMoviesRequest() throws IOException, JSONException {
+    public List<MovieDetails> makeTopRatingMoviesRequest() throws IOException, JSONException {
         String base_url = "https://api.themoviedb.org/3/movie/top_rated?api_key=" + Constants.MOVIE_DB_API_KEY + "&language=en-U";
         try {
             return makeNetworkRequestAndParseResponse(new URL(base_url));
@@ -95,16 +96,17 @@ public class RequestsBuilder {
 
     public byte[] downloadPosterImage(String posterPath) throws IOException {
         String base_url = Constants.IMAGE_BASE_URL + Constants.IMAGE_FILE_SIZE + posterPath;
+        byte[] result;
         try{
-            String response = makeNetworkCall(new URL(base_url));
-            return response.getBytes();
+            result = makeNetworkCall_ReturnBytes(new URL(base_url));
+            return result;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private List<List<String>> makeNetworkRequestAndParseResponse(final URL url) throws IOException, JSONException {
+    private List<MovieDetails> makeNetworkRequestAndParseResponse(final URL url) throws IOException, JSONException {
         String response = makeNetworkCall(url);
         return new ResponseParser().parseMovieListResponse(response);
     }
@@ -140,6 +142,62 @@ public class RequestsBuilder {
         return result;
     }
 
+    private InputStream makeNetworkCall_ReturnStream(URL url) throws IOException {
+        InputStream stream = null;
+        HttpsURLConnection connection = null;
+        String result = null;
+        try {
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.setReadTimeout(3000);
+            connection.setConnectTimeout(3000);
+            connection.setRequestMethod("GET");
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (responseCode != HttpsURLConnection.HTTP_OK) {
+                throw new IOException("HTTP error code: " + responseCode);
+            }
+            // Retrieve the response body as an InputStream.
+            stream = connection.getInputStream();
+        } finally {
+            // Close Stream and disconnect HTTPS connection.
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+
+        return stream;
+    }
+
+    private byte[] makeNetworkCall_ReturnBytes(URL url) throws IOException {
+        InputStream stream = null;
+        HttpsURLConnection connection = null;
+        byte[] result = null;
+        try {
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.setReadTimeout(3000);
+            connection.setConnectTimeout(3000);
+            connection.setRequestMethod("GET");
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (responseCode != HttpsURLConnection.HTTP_OK) {
+                throw new IOException("HTTP error code: " + responseCode);
+            }
+            // Retrieve the response body as an InputStream.
+            stream = connection.getInputStream();
+            result = readBytes(stream);
+        } finally {
+            // Close Stream and disconnect HTTPS connection.
+            if (stream != null) {
+                stream.close();
+            }
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+
+        return result;
+    }
+
     private String readResponseString(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             return "";
@@ -171,6 +229,20 @@ public class RequestsBuilder {
             builder.append(line);
         }
         return builder.toString();
+    }
+
+    public byte[] readBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+
+        return byteBuffer.toByteArray();
     }
 
 }

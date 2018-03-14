@@ -26,7 +26,8 @@ public class ResponseParser {
     public ResponseParser() {
     }
 
-    public List<List<String>> parseMovieListResponse(String responseString) throws JSONException {
+    public List<MovieDetails> parseMovieListResponse(String responseString) throws JSONException {
+        List<MovieDetails> moviesList = new ArrayList<>();
         List<List<String>> bigList = new ArrayList<>();
         List<String > movieNames = new ArrayList<>();
         List<String > movieIds = new ArrayList<>();
@@ -36,19 +37,25 @@ public class ResponseParser {
         JSONArray jsonarray = mainJSONObject.getJSONArray("results");
         for (int i = 0; i < jsonarray.length(); i++) {
             JSONObject jsonobject = jsonarray.getJSONObject(i);
+            MovieDetails movie = new MovieDetails();
             String movie_id = jsonobject.getString("id");
+            movie.setMovieId(movie_id);
             movieIds.add(i, movie_id);
             String poster_path = jsonobject.getString("poster_path");
+            movie.setPosterPath(poster_path);
             posterPaths.add(i, poster_path);
             String movie_name = jsonobject.getString("original_title");
+            movie.setMovieName(movie_name);
             movieNames.add(i, movie_name);
+
+            moviesList.add(movie);
         }
 
         bigList.add(movieIds);
         bigList.add(movieNames);
         bigList.add(posterPaths);
 
-        return bigList;
+        return moviesList;
     }
 
     public MovieDetails parseDetailsResponse(String responseString) throws JSONException {

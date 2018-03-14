@@ -10,6 +10,7 @@ public class Constants {
     public static final String IMAGE_FILE_SIZE = "w500";
 
     public static final String MOVIE_ID_EXTRA = "movie_id_extra";
+    public static final String MOVIE_OBJECT_EXTRA = "movie_object_extra";
 
     public static final String MOVIE_TRAILER_BASE_URL = "https://www.youtube.com/watch?v=";
     public static final String TRAILER_TYPE = "Trailer";

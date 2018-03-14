@@ -53,6 +53,7 @@ public class DetailsActivity extends AppCompatActivity {
     private RequestsBuilder requestsBuilder;
     private String movieId;
     private MovieDetails mMovieDetails;
+    private MoviePref moviePref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,7 @@ public class DetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         requestsBuilder = new RequestsBuilder(this);
+        moviePref = new MoviePref(this);
 
         movieId = getIntent().getStringExtra(Constants.MOVIE_ID_EXTRA);
 
@@ -94,7 +96,7 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
 
-        setUpFavoriteIcon();
+//        setUpFavoriteIcon();
 
         favoriteIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,6 +113,17 @@ public class DetailsActivity extends AppCompatActivity {
         releaseDate.append(movieDetails.getReleaseDate());
         plot.setText(movieDetails.getMoviePlot());
 
+
+        if (movieDetails.isFavorite()){
+            favoriteIcon.setImageResource(R.drawable.ic_star_black_24dp);
+            favoriteIcon.setTag(FAVORITE);
+        } else {
+            favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
+            favoriteIcon.setTag(NORMAL);
+        }
+        favoriteIcon.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.yellow), PorterDuff.Mode.SRC_IN);
+
+
         String poster_path = movieDetails.getPosterPath();
         if (poster_path != null) {
             Picasso.with(this).load(Constants.IMAGE_BASE_URL + Constants.IMAGE_FILE_SIZE + poster_path).into(moviePoster);
@@ -121,6 +134,7 @@ public class DetailsActivity extends AppCompatActivity {
         if (posterBitmap != null){
             moviePoster.setImageBitmap(posterBitmap);
         }
+
     }
 
     private void setUpTrailerList(List<TrailerDetails> trailerList){
@@ -154,12 +168,21 @@ public class DetailsActivity extends AppCompatActivity {
 
             @Override
             protected MovieDetails doInBackground(Void... voids) {
-                if (!requestsBuilder.isNetworkAvailable()) {
+                String sortOrder = moviePref.getSortOrder();
+                if (!requestsBuilder.isNetworkAvailable() && !sortOrder.equalsIgnoreCase(getString(R.string.favorites_sort))) {
                     noContentTv.setText(R.string.no_internet_msg);
                     return null;
                 }
                 try {
-                    return requestsBuilder.makeMovieDetailsRequest(movieId);
+                    if(sortOrder.equalsIgnoreCase(getString(R.string.favorites_sort))){
+                        MovieDetails movieDetails = new FavoritesDBHelper().readData(DetailsActivity.this, movieId);
+                        movieDetails.setFavorite(true);
+                        return movieDetails;
+                    } else {
+                        MovieDetails movieDetails = requestsBuilder.makeMovieDetailsRequest(movieId);
+                        movieDetails.setFavorite(false);
+                        return movieDetails;
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -219,34 +242,11 @@ public class DetailsActivity extends AppCompatActivity {
                     noTrailerTv.setText(R.string.no_trailers_found);
                     return;
                 } else if (trailers == null || (trailers != null && trailers.size() == 0)){
-                    noTrailerTv.setText(R.string.no_trailers_found);
                     return;
                 }
                 noTrailerTv.setVisibility(View.GONE);
                 trailerRecyclerView.setVisibility(View.VISIBLE);
                 setUpTrailerList(trailers);
-            }
-        }.execute(null, null, null);
-    }
-
-    private void setUpFavoriteIcon(){
-        new AsyncTask<Void, Void, MovieDetails>(){
-
-            @Override
-            protected MovieDetails doInBackground(Void... voids) {
-                return new FavoritesDBHelper().readData(DetailsActivity.this, movieId);
-            }
-
-            @Override
-            protected void onPostExecute(MovieDetails movieDetails) {
-                if (movieDetails != null){
-                    favoriteIcon.setImageResource(R.drawable.ic_star_black_24dp);
-                    favoriteIcon.setTag(FAVORITE);
-                } else {
-                    favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
-                    favoriteIcon.setTag(NORMAL);
-                }
-                favoriteIcon.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.yellow), PorterDuff.Mode.SRC_IN);
             }
         }.execute(null, null, null);
     }
