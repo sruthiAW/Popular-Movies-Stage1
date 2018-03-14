@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -38,6 +39,14 @@ public class DetailsActivity extends AppCompatActivity {
     private static final String FAVORITE = "favorite";
     private static final String NORMAL = "normal";
 
+    private static final String MOVIE_ID = "movie_id";
+    private static final String MOVIE_NAME = "movie_name";
+    private static final String MOVIE_SYNOPSIS = "movie_synopsis";
+    private static final String MOVIE_USER_RATING = "movie_user_ratinG";
+    private static final String MOVIE_RELEASE_DATE = "movie_release_date";
+    private static final String MOVIE_POSTER_BITMAP = "movie_poster_bitmap";
+    private static final String FAVORITE_STATUS = "favorite_status";
+
     private ImageView moviePoster;
     private TextView movieName;
     private TextView releaseDate;
@@ -55,6 +64,8 @@ public class DetailsActivity extends AppCompatActivity {
     private MovieDetails mMovieDetails;
     private MoviePref moviePref;
 
+    private boolean isFavorite;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,11 +77,26 @@ public class DetailsActivity extends AppCompatActivity {
 
         requestsBuilder = new RequestsBuilder(this);
         moviePref = new MoviePref(this);
+        mMovieDetails = new MovieDetails();
 
         movieId = getIntent().getStringExtra(Constants.MOVIE_ID_EXTRA);
 
         initializeUI();
-        fetchMovieDetails();
+
+        if (savedInstanceState != null){
+            mMovieDetails.setMovieName(savedInstanceState.getString(MOVIE_NAME));
+            mMovieDetails.setMoviePlot(savedInstanceState.getString(MOVIE_SYNOPSIS));
+            mMovieDetails.setUserRating(savedInstanceState.getString(MOVIE_USER_RATING));
+            mMovieDetails.setReleaseDate(savedInstanceState.getString(MOVIE_RELEASE_DATE));
+            mMovieDetails.setMoviePoster((Bitmap) savedInstanceState.getParcelable(MOVIE_POSTER_BITMAP));
+            isFavorite = savedInstanceState.getBoolean(FAVORITE_STATUS);
+            setDetails(mMovieDetails);
+        } else {
+            fetchMovieDetails();
+        }
+
+        setUpFavoriteIcon();
+
         fetchMovieTrailers();
     }
 
@@ -104,6 +130,29 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
+    private void setUpFavoriteIcon(){
+        if (isFavorite){
+            favoriteIcon.setImageResource(R.drawable.ic_star_black_24dp);
+            favoriteIcon.setTag(FAVORITE);
+        } else {
+            favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
+            favoriteIcon.setTag(NORMAL);
+        }
+        favoriteIcon.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.yellow), PorterDuff.Mode.SRC_IN);
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(MOVIE_NAME, mMovieDetails.getMovieName());
+        outState.putString(MOVIE_SYNOPSIS, mMovieDetails.getMoviePlot());
+        outState.putString(MOVIE_USER_RATING, mMovieDetails.getUserRating());
+        outState.putString(MOVIE_RELEASE_DATE, mMovieDetails.getReleaseDate());
+        outState.putParcelable(MOVIE_POSTER_BITMAP, mMovieDetails.getMoviePoster());
+        outState.putBoolean(FAVORITE_STATUS, isFavorite);
+        super.onSaveInstanceState(outState);
+    }
+
     private void setDetails(MovieDetails movieDetails) {
         mMovieDetails = movieDetails;
         movieName.setText(movieDetails.getMovieName());
@@ -113,11 +162,9 @@ public class DetailsActivity extends AppCompatActivity {
 
 
         if (movieDetails.isFavorite()){
+            isFavorite = true;
             favoriteIcon.setImageResource(R.drawable.ic_star_black_24dp);
             favoriteIcon.setTag(FAVORITE);
-        } else {
-            favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
-            favoriteIcon.setTag(NORMAL);
         }
         favoriteIcon.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.yellow), PorterDuff.Mode.SRC_IN);
 
@@ -174,11 +221,12 @@ public class DetailsActivity extends AppCompatActivity {
                 try {
                     if(sortOrder.equalsIgnoreCase(getString(R.string.favorites_sort))){
                         MovieDetails movieDetails = new FavoritesDBHelper().readData(DetailsActivity.this, movieId);
-                        movieDetails.setFavorite(true);
+                        if (movieDetails != null) {
+                            movieDetails.setFavorite(true);
+                        }
                         return movieDetails;
                     } else {
                         MovieDetails movieDetails = requestsBuilder.makeMovieDetailsRequest(movieId);
-                        movieDetails.setFavorite(false);
                         return movieDetails;
                     }
                 } catch (IOException e) {
@@ -255,9 +303,11 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             protected void onPreExecute() {
                 if (favoriteIcon.getTag().equals(FAVORITE)) {
+                    isFavorite = false;
                     favoriteIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
                     Toast.makeText(DetailsActivity.this, R.string.removed_from_favorites, Toast.LENGTH_SHORT).show();
                 } else {
+                    isFavorite = true;
                     favoriteIcon.setImageResource(R.drawable.ic_star_black_24dp);
                     Toast.makeText(DetailsActivity.this, R.string.added_to_favorites, Toast.LENGTH_SHORT).show();
                 }
