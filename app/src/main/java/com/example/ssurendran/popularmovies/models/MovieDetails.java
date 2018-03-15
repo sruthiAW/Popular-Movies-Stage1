@@ -85,4 +85,14 @@ public class MovieDetails implements Serializable{
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
     }
+
+    public void update(MovieDetails other){
+        if (other.movieId != null) this.movieId = other.movieId;
+        if (other.movieName != null) this.movieName = other.movieName;
+        if (other.userRating != null) this.userRating = other.userRating;
+        if (other.releaseDate != null) this.releaseDate = other.releaseDate;
+        if (other.posterPath != null) this.posterPath = other.posterPath;
+        if (other.moviePlot != null) this.moviePlot = other.moviePlot;
+        if (other.moviePoster != null) this.moviePoster = other.moviePoster;
+    }
 }

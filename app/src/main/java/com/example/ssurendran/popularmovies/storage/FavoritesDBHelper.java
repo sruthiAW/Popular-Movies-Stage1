@@ -11,6 +11,7 @@ import com.example.ssurendran.popularmovies.models.MovieDetails;
 import com.example.ssurendran.popularmovies.network.RequestsBuilder;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class FavoritesDBHelper {
         values.put(MoviesContract.FavoriteMovieEntry.SYNOPSIS, movieDetails.getMoviePlot());
         values.put(MoviesContract.FavoriteMovieEntry.USER_RATING, movieDetails.getUserRating());
         values.put(MoviesContract.FavoriteMovieEntry.RELEASE_DATE, movieDetails.getReleaseDate());
+        values.put(MoviesContract.FavoriteMovieEntry.MOVIE_POSTER_PATH, movieDetails.getPosterPath());
 
         byte[] image = null;
         try {
@@ -56,9 +58,10 @@ public class FavoritesDBHelper {
             movieDetails.setUserRating(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.USER_RATING)));
             movieDetails.setMoviePlot(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.SYNOPSIS)));
             movieDetails.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.RELEASE_DATE)));
+            movieDetails.setPosterPath(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.MOVIE_POSTER_PATH)));
 
             byte[] bitmapdata = cursor.getBlob(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.MOVIE_POSTER));
-            Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
+            Bitmap bitmap = ByteArrayToBitmap(bitmapdata);
             movieDetails.setMoviePoster(bitmap);
         }
 
@@ -83,6 +86,7 @@ public class FavoritesDBHelper {
                 movieDetails.setUserRating(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.USER_RATING)));
                 movieDetails.setMoviePlot(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.SYNOPSIS)));
                 movieDetails.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.RELEASE_DATE)));
+                movieDetails.setPosterPath(cursor.getString(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.MOVIE_POSTER_PATH)));
 
                 byte[] bitmapdata = cursor.getBlob(cursor.getColumnIndex(MoviesContract.FavoriteMovieEntry.MOVIE_POSTER));
                 Bitmap bitmap = ByteArrayToBitmap(bitmapdata);
@@ -95,9 +99,15 @@ public class FavoritesDBHelper {
         return movieList;
     }
 
-    public Bitmap ByteArrayToBitmap(byte[] byteArray) {
+    private Bitmap ByteArrayToBitmap(byte[] byteArray) {
         ByteArrayInputStream arrayInputStream = new ByteArrayInputStream(byteArray);
         Bitmap bitmap = BitmapFactory.decodeStream(arrayInputStream);
-        return bitmap;
+        return compressBitmap(bitmap);
+    }
+
+    private Bitmap compressBitmap(Bitmap original){
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        original.compress(Bitmap.CompressFormat.PNG, 100, out);
+        return BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
     }
 }

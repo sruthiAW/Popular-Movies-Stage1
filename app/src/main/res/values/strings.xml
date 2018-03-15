@@ -3,8 +3,8 @@
     <string name="action_sort">Sort</string>
     <string name="please_wait_while_we_load">Please wait while we load...</string>
     <string name="title_activity_details">Movie Details</string>
-    <string name="user_rating">User Rating :</string>
-    <string name="release_date">Release date :</string>
+    <string name="user_rating">User Rating : %s</string>
+    <string name="release_date">Release date : %s</string>
     <string name="top_rated_sort">Top Rated</string>
     <string name="popular_sort">Popular</string>
     <string name="favorites_sort">Favorites</string>
@@ -23,4 +23,6 @@
     <string name="trailer_list_item">Trailer\u0020</string>
     <string name="removed_from_favorites">Removed from favorites</string>
     <string name="added_to_favorites">Added to favorites</string>
+    <string name="cant_favorite_when_offline">Can\'t favorite when offline</string>
+    <string name="cant_load_reviews_when_offline">Can\'t load reviews when offline</string>
 </resources>

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.example.ssurendran.popularmovies.adapters.MovieListAdapter;
 import com.example.ssurendran.popularmovies.models.MovieDetails;
 import com.example.ssurendran.popularmovies.network.RequestsBuilder;
+import com.example.ssurendran.popularmovies.receiver.ConnectivityReceiver;
 import com.example.ssurendran.popularmovies.storage.FavoritesDBHelper;
 import com.example.ssurendran.popularmovies.utils.ItemOffsetDecoration;
 
@@ -26,13 +27,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieListActivity extends AppCompatActivity {
+public class MovieListActivity extends AppCompatActivity implements ConnectivityReceiver.ConnectivityCallback {
 
-    RecyclerView movieRecyclerView;
-    MovieListAdapter movieListAdapter;
-    TextView noContentTv;
-    MoviePref moviePref;
-    RequestsBuilder requestsBuilder;
+    private RecyclerView movieRecyclerView;
+    private MovieListAdapter movieListAdapter;
+    private TextView noContentTv;
+    private MoviePref moviePref;
+    private RequestsBuilder requestsBuilder;
+    private ConnectivityReceiver connectivityReceiver;
+    private List<MovieDetails> mMovieList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class MovieListActivity extends AppCompatActivity {
 
         moviePref = new MoviePref(this);
         requestsBuilder = new RequestsBuilder(this);
+        connectivityReceiver = new ConnectivityReceiver(this, this);
 
         noContentTv = (TextView) findViewById(R.id.no_content);
         movieRecyclerView = (RecyclerView) findViewById(R.id.movie_recycler_view);
@@ -61,6 +65,7 @@ public class MovieListActivity extends AppCompatActivity {
     }
 
     private void updateRecyclerView(List<MovieDetails> movieList){
+        mMovieList = movieList;
         movieListAdapter.refreshData(movieList);
     }
 
@@ -70,6 +75,13 @@ public class MovieListActivity extends AppCompatActivity {
         if(moviePref.getSortOrder().equalsIgnoreCase(getString(R.string.favorites_sort))){
             fetchMovieList();
         }
+        connectivityReceiver.register();
+    }
+
+    @Override
+    protected void onPause() {
+        connectivityReceiver.unregister();
+        super.onPause();
     }
 
     private void fetchMovieList() {
@@ -234,4 +246,10 @@ public class MovieListActivity extends AppCompatActivity {
         alert.show();
     }
 
+    @Override
+    public void onConnected() {
+        if (mMovieList == null){
+            fetchMovieList();
+        }
+    }
 }

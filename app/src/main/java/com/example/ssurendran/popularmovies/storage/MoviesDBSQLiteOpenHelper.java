@@ -23,6 +23,7 @@ public class MoviesDBSQLiteOpenHelper extends SQLiteOpenHelper {
                 MoviesContract.FavoriteMovieEntry.MOVIE_NAME + " TEXT NOT NULL, " +
                 MoviesContract.FavoriteMovieEntry.MOVIE_ID + " INTEGER NOT NULL, " +
                 MoviesContract.FavoriteMovieEntry.MOVIE_POSTER + " BLOB, " +
+                MoviesContract.FavoriteMovieEntry.MOVIE_POSTER_PATH + " TEXT NOT NULL, " +
                 MoviesContract.FavoriteMovieEntry.SYNOPSIS + " TEXT NOT NULL, " +
                 MoviesContract.FavoriteMovieEntry.USER_RATING + " TEXT NOT NULL, " +
                 MoviesContract.FavoriteMovieEntry.RELEASE_DATE + " TEXT NOT NULL" +

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.example.ssurendran.popularmovies.adapters.ReviewListAdapter;
 import com.example.ssurendran.popularmovies.models.ReviewDetails;
 import com.example.ssurendran.popularmovies.network.RequestsBuilder;
+import com.example.ssurendran.popularmovies.receiver.ConnectivityReceiver;
 
 import org.json.JSONException;
 
@@ -22,11 +23,13 @@ import java.util.List;
 
 import static com.example.ssurendran.popularmovies.utils.Constants.MOVIE_ID_EXTRA;
 
-public class ReviewsActivity extends AppCompatActivity {
+public class ReviewsActivity extends AppCompatActivity implements ConnectivityReceiver.ConnectivityCallback {
 
     private RecyclerView reviewRecyclerView;
     private TextView noContentTv;
     private RequestsBuilder requestsBuilder;
+    private ConnectivityReceiver connectivityReceiver;
+    private List<ReviewDetails> mReviews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,7 @@ public class ReviewsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         requestsBuilder = new RequestsBuilder(this);
+        connectivityReceiver = new ConnectivityReceiver(this, this);
 
         reviewRecyclerView = (RecyclerView) findViewById(R.id.rv_reviews_list);
         noContentTv = (TextView) findViewById(R.id.tv_no_content);
@@ -46,10 +50,23 @@ public class ReviewsActivity extends AppCompatActivity {
     }
 
     private void setUpRecyclerView(List<ReviewDetails> reviews){
+        mReviews = reviews;
         reviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         reviewRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         reviewRecyclerView.setHasFixedSize(true);
         reviewRecyclerView.setAdapter(new ReviewListAdapter(this, reviews));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        connectivityReceiver.register();
+    }
+
+    @Override
+    protected void onPause() {
+        connectivityReceiver.unregister();
+        super.onPause();
     }
 
     @Override
@@ -111,4 +128,10 @@ public class ReviewsActivity extends AppCompatActivity {
         }.execute(null, null, null);
     }
 
+    @Override
+    public void onConnected() {
+        if (mReviews == null){
+            fetchReviews();
+        }
+    }
 }

@@ -22,7 +22,8 @@ public class MoviesContract {
         public static final String TABLE_NAME = "favorite_movies";
         public static final String MOVIE_NAME = "movie_name";
         public static final String MOVIE_ID = "movie_id";
-        public static final String MOVIE_POSTER = "poster_path";
+        public static final String MOVIE_POSTER = "poster_bitmap";
+        public static final String MOVIE_POSTER_PATH = "poster_path";
         public static final String SYNOPSIS = "synopsis";
         public static final String USER_RATING = "user_rating";
         public static final String RELEASE_DATE = "release_date";
